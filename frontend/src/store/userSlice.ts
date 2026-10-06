@@ -7,6 +7,12 @@ interface createData {
     password : string
 }
 
+interface signUpData{
+    username : string
+    email : string
+    password : string
+}
+
 interface userData {
     username : string
     email : string
@@ -40,6 +46,24 @@ const userSlice = createSlice({
 export const {setUser , setToken} = userSlice.actions
 export default userSlice.reducer
 
+export function signUp( data : createData ){
+    return async function signUpThunk() {
+        try {
+            const response = await axios.post('http://localhost:5555/user/add', data, {
+                withCredentials : true
+            })
+
+            if(response.status >= 200 || response.status < 300){
+                alert("Registered Successful")
+                return true
+            }
+        } catch (error) {
+            console.error(error);
+            return false
+        }
+    }
+}
+
 export function getUser(){
     return async function getUserThunk(dispatch : AppDispatch) {
         try {
@@ -54,14 +78,37 @@ export function getUser(){
     }
 }
 
+
+
 export function login( data : createData ){
     return async function loginThunk(dispatch : AppDispatch) {
         try {
-            const response = await axios.post('http://localhost:5555/user/login', data)
+            const response = await axios.post('http://localhost:5555/user/login', data, {
+                withCredentials : true
+            })
 
             if(response.status >= 200 || response.status < 300){
                 dispatch(setUser(response.data.data))
                 dispatch(setToken(response.data.token))
+                localStorage.setItem('user' , JSON.stringify(response.data.user))
+                return true
+            }
+        } catch (error) {
+            console.error(error);
+            return false
+        }
+    }
+}
+
+export function logout(  ){
+    return async function loginThunk() {
+        try {
+            const response = await axios.post('http://localhost:5555/user/logout',{},{
+                withCredentials : true
+            })
+
+            if(response.status >= 200 || response.status < 300){
+                alert("Logout Successfully")
                 return true
             }
         } catch (error) {

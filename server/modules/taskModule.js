@@ -4,8 +4,8 @@ const createTaskTable = () => {
     const sql = `
         CREATE TABLE IF NOT EXISTS tasks (
             id INT PRIMARY KEY AUTO_INCREMENT,
-            title VARCHAR(30) NOT NULL UNIQUE,
-            description VARCHAR(255) NOT NULL,
+            title VARCHAR(30),
+            description VARCHAR(255),
             userId INT NOT NULL,
 
             FOREIGN KEY (userId) REFERENCES users(id)

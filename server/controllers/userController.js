@@ -165,65 +165,104 @@ const updateUser = (req , res) => {
 
 const Login = (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password } = req.body
 
         if (!email || !password) {
             return res.status(400).json({
                 message: "Email and password are required"
-            });
+            })
         }
 
         const sql = `
             SELECT * FROM users WHERE email = ?
-        `;
+        `
 
         db.query(sql, [email], (err, result) => {
             if (err) {
-                console.log("Database Error:", err);
+                console.log("Database Error:", err)
 
                 return res.status(500).json({
                     message: "Database Error"
-                });
+                })
             }
 
             if (result.length === 0) {
                 return res.status(404).json({
                     message: "Invalid Email"
-                });
+                })
             }
 
-            const user = result[0];
+            const user = result[0]
 
             const isMatch = bcrypt.compareSync(
                 password,
                 user.password
-            );
+            )
 
             if (!isMatch) {
                 return res.status(401).json({
                     message: "Invalid Password"
-                });
+                })
             }
 
-            const token = jwt.sign({id : user.id , email : user.email , role : user.role} , "jwt" , {
-                expiresIn : '30d'
-            })
+            const token = jwt.sign(
+                {
+                    id: user.id,
+                    email: user.email,
+                    role: user.role
+                },
+                "jwt",
+                {
+                    expiresIn: "30d"
+                }
+            )
+
+            
+            res.cookie("token", token, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    maxAge: 30 * 24 * 60 * 60 * 1000
+})
 
             return res.status(200).json({
                 message: "Login Successfully",
-                user : user,
-                token
-            });
-        });
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role
+                }
+            })
+        })
 
     } catch (error) {
-        console.log("Login Error:", error);
+        console.log("Login Error:", error)
 
         return res.status(500).json({
             message: "Server Error"
-        });
+        })
     }
-};
+}
+
+const logOut = (req, res) => {
+    try {
+        res.clearCookie("token")
+        res.clearCookie("user")
+
+        console.log("Log Out Successfully")
+
+        return res.status(200).json({
+            message: "Log Out Successfully"
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: "Logout failed"
+        })
+    }
+}
 
 
-module.exports = { createUser , getAllUser , getSingleUser , deleteUser , updateUser ,Login}
+
+module.exports = { createUser , getAllUser , getSingleUser , deleteUser , updateUser ,Login , logOut}
