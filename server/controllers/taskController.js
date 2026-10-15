@@ -101,9 +101,41 @@ const deleteTask = (req ,res) => {
 
 const showUserTask = (req , res) => {
     try {
-        const {id} = req.params
-
         const sql = `SELECT * FROM tasks WHERE userId=?`
+
+        console.log(req.user);
+        
+
+        db.query(sql , [req.user.id] ,(err , result) => {
+            if(err){
+                console.log("Error : ", err)
+                return res.status(500).json({
+                    message : "Error",
+                })
+            }
+
+            if(result.length === 0){
+                return res.status(404).json({
+                    message : "Error",
+                })
+            }
+
+            return res.status(200).json({
+                message : "Success",
+                data : result
+            })
+        })
+    } catch (error) {
+        
+    }
+}
+
+const showOtherTask = (req , res) => {
+    try {
+        
+        const id = req.params.id
+        
+        const sql = `SELECT t.*, u.* FROM tasks t JOIN users u ON t.userId= u.id WHERE userId=?`
 
         db.query(sql , [id] ,(err , result) => {
             if(err){
@@ -185,4 +217,4 @@ const updatePriority = (req, res) => {
 
 }
 
-module.exports ={ addTask , showTasks , deleteTask , showUserTask , updateComplete , updatePriority}
+module.exports ={ addTask , showTasks , deleteTask , showUserTask , updateComplete, showOtherTask , updatePriority}

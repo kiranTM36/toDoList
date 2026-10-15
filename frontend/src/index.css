@@ -1,1 +1,9 @@
 @import "tailwindcss";
+
+.navLink{
+    color: white;
+}
+
+.navActivate{
+    color: red;
+}

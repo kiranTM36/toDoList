@@ -1,15 +1,18 @@
-const { addTask, showTasks, showUserTask, updateComplete, updatePriority } = require('../controllers/taskController')
-const auth = require('../middleware/authorize')
-const router = require('express').Router()
+const {addTask, showTasks, showUserTask, updateComplete, updatePriority, showOtherTask } = require('../controllers/taskController');
 
-router.post('/add' ,auth('user'), addTask)
+const { authenticate ,authorize } = require('../middleware/authorize');
 
-router.get('/' , showTasks)
+const router = require('express').Router();
 
-router.get('/:id' , showUserTask)
+router.post('/add', authorize, authenticate('user'), addTask);
 
-router.put('/update/:id' , updateComplete)
 
-router.put('/priority/:id' , updatePriority)
+router.get('',authorize, showUserTask);
 
-module.exports = router
+router.put('/update/:id', authorize, updateComplete);
+
+router.put('/priority/:id', authorize, updatePriority);
+
+router.get('/:id' , authorize, authenticate('admin'), showOtherTask)
+
+module.exports = router;

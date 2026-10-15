@@ -4,10 +4,11 @@ import axios from "axios"
 
 interface tasksData {
     id: number
-    username: number,
+    username: string,
     title: string
     complete : boolean
     priority : boolean
+    description : string
 }
 
 interface createTask {
@@ -52,23 +53,28 @@ export function getAlltasks() {
     }
 }
 
-export function getMytasks(id: number) {
-    return async function getMyTasksThunk(dispatch: AppDispatch) {
-        try {
-            const response = await axios.get(`http://localhost:5555/task/${id}`)
 
-            if (response.status >= 200 || response.status < 300) {
-                dispatch(setTasks(response.data.data))
-                console.log(response.data.data);
-                
-                return true
-            }
-        } catch (error) {
-            console.error(error);
-            return false
+export function getMytasks() {
+  return async function getMyTasksThunk(dispatch: AppDispatch) {
+    try {
+      const response = await axios.get(
+        "http://localhost:5555/task/",
+        {
+          withCredentials: true,
         }
+      )
+
+      dispatch(setTasks(response.data.data))
+
+      console.log("My tasks:", response.data.data)
+      return true
+    } catch (error) {
+      console.error("Failed to fetch tasks:", error)
+      return false
     }
+  }
 }
+
 export function addTask(data: createTask) {
     return async function addTaskThunk() {
 
@@ -145,6 +151,26 @@ export function updatePriority(id : number) {
         } catch (error) {
             console.error(error);
             
+        }
+    }
+}
+
+export function getOthertasks(id : number) {
+    return async function getOtherTasksThunk(dispatch: AppDispatch) {
+        try {
+            const response = await axios.get(`http://localhost:5555/task/${id}` , {
+                withCredentials : true
+            })
+
+            if (response.status >= 200 && response.status < 300) {
+                dispatch(setTasks(response.data.data))
+                console.log(response.data.data);
+                
+                return true
+            }
+        } catch (error) {
+            console.error(error);
+            return false
         }
     }
 }
